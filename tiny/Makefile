@@ -1,22 +1,29 @@
+# Makefile for Proxy Lab 
+#
+# You may modify this file any way you like (except for the handin
+# rule). You instructor will type "make" on your specific Makefile to
+# build your proxy from sources.
+
 CC = gcc
-CFLAGS = -O2 -Wall -I .
+CFLAGS = -g -Wall
+LDFLAGS = -lpthread
 
-# This flag includes the Pthreads library on a Linux box.
-# Others systems will probably require something different.
-LIB = -lpthread
+all: proxy
 
-all: tiny cgi
-
-tiny: tiny.c csapp.o
-	$(CC) $(CFLAGS) -o tiny tiny.c csapp.o $(LIB)
-
-csapp.o: csapp.c
+csapp.o: csapp.c csapp.h
 	$(CC) $(CFLAGS) -c csapp.c
 
-cgi:
-	(cd cgi-bin; make)
+proxy.o: proxy.c csapp.h
+	$(CC) $(CFLAGS) -c proxy.c
+
+proxy: proxy.o csapp.o
+	$(CC) $(CFLAGS) proxy.o csapp.o -o proxy $(LDFLAGS)
+
+# Creates a tarball in ../proxylab-handin.tar that you can then
+# hand in. DO NOT MODIFY THIS!
+handin:
+	(make clean; cd ..; tar cvf $(USER)-proxylab-handin.tar proxylab-handout --exclude tiny --exclude nop-server.py --exclude proxy --exclude driver.sh --exclude port-for-user.pl --exclude free-port.sh --exclude ".*")
 
 clean:
-	rm -f *.o tiny *~
-	(cd cgi-bin; make clean)
+	rm -f *~ *.o proxy core *.tar *.zip *.gzip *.bzip *.gz
 
